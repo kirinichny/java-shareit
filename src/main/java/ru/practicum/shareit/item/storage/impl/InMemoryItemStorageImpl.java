@@ -7,8 +7,10 @@ import ru.practicum.shareit.exceptions.UnauthorizedAccessException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InMemoryItemStorageImpl implements ItemStorage {
     private final Map<Long, Item> itemsData = new HashMap<>();
+    private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private Long lastItemId = 0L;
 
     private Long generateNewItemId() {
@@ -32,23 +35,21 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public List<Item> getItemsByOwnerId(Long ownerId) {
-        return itemsData.values().stream()
-                .filter(item -> item.getOwner().getId().equals(ownerId))
-                .collect(Collectors.toList());
+        return userItemIndex.getOrDefault(ownerId, Collections.emptyList());
     }
 
     @Override
     public List<Item> searchItems(String searchText) {
-        if (searchText.isEmpty()) {
+        if (searchText.isBlank()) {
             return Collections.emptyList();
         }
 
         final String lowercaseSearchText = searchText.toLowerCase();
 
         return itemsData.values().stream()
-                .filter(Item::getAvailable)
-                .filter(item -> item.getName().toLowerCase().contains(lowercaseSearchText)
+                .filter(item -> (item.getName().toLowerCase().contains(lowercaseSearchText)
                         || item.getDescription().toLowerCase().contains(lowercaseSearchText))
+                        && item.getAvailable())
                 .collect(Collectors.toList());
     }
 
@@ -58,6 +59,9 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         item.setId(id);
 
         itemsData.put(id, item);
+
+        final List<Item> items = userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
+        items.add(item);
 
         return item.getId();
     }
@@ -72,7 +76,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
         if (!Objects.equals(item.getOwner().getId(), updatedItem.getOwner().getId())) {
             final String errorMessage = "Недостаточно прав доступа для изменения данных вещи #" + itemId + ".";
-            log.error(errorMessage);
             throw new UnauthorizedAccessException(errorMessage);
         }
 
@@ -93,7 +96,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         final String errorMessage = "Вещь #" + itemId + " не найдена.";
 
         if (!isItemExists(itemId)) {
-            log.error(errorMessage);
             throw new NotFoundException(errorMessage);
         }
     }

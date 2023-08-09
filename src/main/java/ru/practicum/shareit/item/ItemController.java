@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.handlers.HeaderConstants;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -29,7 +30,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDto> getItemsByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+    public List<ItemDto> getItemsByOwnerId(@RequestHeader(HeaderConstants.X_SHARER_USER_ID) long ownerId) {
         log.debug("+ getItemsByOwnerId: ownerId={}", ownerId);
         List<ItemDto> items = itemService.getItemsByOwnerId(ownerId).stream()
                 .map(ItemMapper::toItemDto)
@@ -58,7 +59,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto createItem(@RequestBody @Valid ItemDto item,
-                              @RequestHeader("X-Sharer-User-Id") long userId) {
+                              @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ createItem: item={}, userId={}", item, userId);
 
         Item createdItem = itemService.createItem(ItemMapper.toItem(item), userId);
@@ -72,7 +73,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
                               @RequestBody ItemDto item,
-                              @RequestHeader("X-Sharer-User-Id") long userId) {
+                              @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ updateItem: itemId={}, item={}, userId={}", itemId, item, userId);
 
         item.setId(itemId);

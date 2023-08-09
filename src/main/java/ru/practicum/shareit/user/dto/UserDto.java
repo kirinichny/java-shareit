@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 @Builder
@@ -14,7 +14,7 @@ public class UserDto {
     private Long id;
     private String name;
 
-    @NotNull(message = "Электронный адрес не должен быть пустым")
+    @NotEmpty(message = "Электронный адрес не должен быть пустым")
     @Email(message = "Неверный адрес электронной почты")
     private String email;
 }

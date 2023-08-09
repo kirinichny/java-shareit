@@ -76,7 +76,6 @@ public class InMemoryUserStorageImpl implements UserStorage {
         final String errorMessage = "Пользователь #" + userId + " не найден.";
 
         if (!isUserExists(userId)) {
-            log.error(errorMessage);
             throw new NotFoundException(errorMessage);
         }
     }
@@ -93,7 +92,6 @@ public class InMemoryUserStorageImpl implements UserStorage {
         final String errorMessage = "Пользователь с адресом " + email + " уже существует.";
 
         if (isUserWithEmailExists(email, excludedUserId)) {
-            log.error(errorMessage);
             throw new UserAlreadyExistsException(errorMessage);
         }
     }
