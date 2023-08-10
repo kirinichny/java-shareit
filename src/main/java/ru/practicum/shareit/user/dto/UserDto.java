@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 @Data
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
+    @NotBlank(message = "Имя не должно быть пустым или содержать только пробельные символы")
     private String name;
 
     @NotEmpty(message = "Электронный адрес не должен быть пустым")

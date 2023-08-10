@@ -18,10 +18,6 @@ public class InMemoryUserStorageImpl implements UserStorage {
     private final Map<Long, User> usersData = new HashMap<>();
     private Long lastUserId = 0L;
 
-    private Long generateNewUserId() {
-        return ++lastUserId;
-    }
-
     @Override
     public User getUserById(Long userId) {
         verifyUserExists(userId);
@@ -99,5 +95,9 @@ public class InMemoryUserStorageImpl implements UserStorage {
     @Override
     public void verifyUserWithEmailExists(String email) throws NotFoundException {
         verifyUserWithEmailExists(email, null);
+    }
+
+    private Long generateNewUserId() {
+        return ++lastUserId;
     }
 }

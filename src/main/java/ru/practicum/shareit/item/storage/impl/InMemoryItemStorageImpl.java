@@ -23,10 +23,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private Long lastItemId = 0L;
 
-    private Long generateNewItemId() {
-        return ++lastItemId;
-    }
-
     @Override
     public Item getItemById(Long itemId) {
         verifyItemExists(itemId);
@@ -40,10 +36,6 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
     @Override
     public List<Item> searchItems(String searchText) {
-        if (searchText.isBlank()) {
-            return Collections.emptyList();
-        }
-
         final String lowercaseSearchText = searchText.toLowerCase();
 
         return itemsData.values().stream()
@@ -98,5 +90,9 @@ public class InMemoryItemStorageImpl implements ItemStorage {
         if (!isItemExists(itemId)) {
             throw new NotFoundException(errorMessage);
         }
+    }
+
+    private Long generateNewItemId() {
+        return ++lastItemId;
     }
 }

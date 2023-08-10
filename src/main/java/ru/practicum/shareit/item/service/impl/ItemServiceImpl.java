@@ -11,6 +11,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -34,13 +35,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> searchItems(String searchText) {
-        return itemStorage.searchItems(searchText);
+        return (!searchText.isBlank()) ? itemStorage.searchItems(searchText) : Collections.emptyList();
     }
 
     @Override
     public Item createItem(Item item, Long ownerId) {
         item.setOwner(userStorage.getUserById(ownerId));
-        return itemStorage.getItemById(itemStorage.createItem(item));
+        itemStorage.createItem(item);
+        return item;
     }
 
     @Override
@@ -67,6 +69,8 @@ public class ItemServiceImpl implements ItemService {
             throw new ConstraintViolationException(violations);
         }
 
-        return itemStorage.getItemById(itemStorage.updateItem(item));
+        itemStorage.updateItem(item);
+
+        return item;
     }
 }

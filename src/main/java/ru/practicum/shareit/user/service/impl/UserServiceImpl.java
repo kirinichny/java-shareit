@@ -32,7 +32,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        return userStorage.getUserById(userStorage.createUser(user));
+        userStorage.createUser(user);
+        return user;
     }
 
     @Override
@@ -53,7 +54,9 @@ public class UserServiceImpl implements UserService {
             throw new ConstraintViolationException(violations);
         }
 
-        return userStorage.getUserById(userStorage.updateUser(user));
+        userStorage.updateUser(user);
+
+        return user;
     }
 
     @Override
