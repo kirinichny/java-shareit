@@ -20,9 +20,8 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {

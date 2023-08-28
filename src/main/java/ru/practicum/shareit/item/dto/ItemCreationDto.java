@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @AllArgsConstructor
-public class ItemDto {
+public class ItemCreationDto {
     private Long id;
 
     @NotBlank(message = "Имя не должно быть пустым или содержать только пробельные символы")

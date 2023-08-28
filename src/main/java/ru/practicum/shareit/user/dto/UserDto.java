@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -18,5 +19,6 @@ public class UserDto {
 
     @NotEmpty(message = "Электронный адрес не должен быть пустым")
     @Email(message = "Неверный адрес электронной почты")
+    @Column(length = 320, unique = true)
     private String email;
 }
