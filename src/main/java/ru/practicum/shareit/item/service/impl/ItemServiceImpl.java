@@ -18,17 +18,13 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
 import javax.validation.ValidationException;
-import javax.validation.Validator;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +34,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Override
     public Item getItemById(Long itemId, Long userId) {
@@ -46,17 +41,23 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещь #" + itemId + " не найдена."));
         Long itemOwnerId = item.getOwner().getId();
 
+        if (itemOwnerId.equals(userId)) {
+            setLastAndNextBookingData(item);
+        }
+
         setComments(item);
 
-        return itemOwnerId.equals(userId) ? setLastAndNextBookingData(item) : item;
+        return item;
     }
 
     @Override
     public List<Item> getItemsByOwnerId(Long ownerId) {
-        return itemRepository.findItemsByOwnerIdOrderById(ownerId).stream()
-                .map(this::setLastAndNextBookingData)
-                .map(this::setComments)
-                .collect(Collectors.toList());
+        List<Item> items = itemRepository.findItemsByOwnerIdOrderById(ownerId);
+
+        setLastAndNextBookingData(items);
+        setComments(items);
+
+        return items;
     }
 
     @Override
@@ -100,11 +101,6 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(currentItem.getAvailable());
         }
 
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
         return itemRepository.save(item);
     }
 
@@ -132,7 +128,32 @@ public class ItemServiceImpl implements ItemService {
         return commentRepository.save(comment);
     }
 
-    private Item setLastAndNextBookingData(Item item) {
+    private void setLastAndNextBookingData(List<Item> items) {
+        Map<Item, List<Booking>> bookingsByItem = bookingRepository
+                .findAllByItemInAndStatusOrderByStartDesc(items, BookingStatus.APPROVED).stream()
+                .collect(Collectors.groupingBy(Booking::getItem, Collectors.toList()));
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        items.forEach(item -> {
+            List<Booking> bookings = bookingsByItem.getOrDefault(item, Collections.emptyList());
+
+            Optional<Booking> lastBooking = bookings.stream()
+                    .filter(b -> (
+                            (b.getEnd().isEqual(currentDateTime) || b.getEnd().isBefore(currentDateTime))
+                                    || (b.getStart().isEqual(currentDateTime) || b.getStart().isBefore(currentDateTime))
+                    ))
+                    .findFirst();
+
+            Optional<Booking> nextBooking = bookings.stream()
+                    .filter(b -> b.getStart().isAfter(currentDateTime))
+                    .reduce((first, second) -> second);
+
+            lastBooking.ifPresent(booking -> item.setLastBooking(BookingMapper.toBookingDatesDto(booking)));
+            nextBooking.ifPresent(booking -> item.setNextBooking(BookingMapper.toBookingDatesDto(booking)));
+        });
+    }
+
+    private void setLastAndNextBookingData(Item item) {
         Long itemId = item.getId();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
@@ -147,18 +168,28 @@ public class ItemServiceImpl implements ItemService {
 
         lastBooking.ifPresent(booking -> item.setLastBooking(BookingMapper.toBookingDatesDto(booking)));
         nextBooking.ifPresent(booking -> item.setNextBooking(BookingMapper.toBookingDatesDto(booking)));
-
-        return item;
     }
 
-    private Item setComments(Item item) {
-        Long itemId = item.getId();
+    private void setComments(List<Item> items) {
+        Map<Item, List<Comment>> commentsByItem = commentRepository.findByItemInOrderByCreatedDesc(items)
+                .stream()
+                .collect(Collectors.groupingBy(Comment::getItem, Collectors.toList()));
 
-        List<CommentDetailsInfoDto> comments = commentRepository.findAllByItemId(itemId).stream()
+        items.forEach(item -> {
+            List<Comment> comments = commentsByItem.getOrDefault(item, Collections.emptyList());
+
+            item.setComments(comments
+                    .stream()
+                    .map(CommentMapper::toCommentDetailsInfoDto)
+                    .collect(Collectors.toList()));
+        });
+    }
+
+    private void setComments(Item item) {
+        List<CommentDetailsInfoDto> comments = commentRepository.findAllByItemId(item.getId()).stream()
                 .map(CommentMapper::toCommentDetailsInfoDto)
                 .collect(Collectors.toList());
 
         item.setComments(comments);
-        return item;
     }
 }

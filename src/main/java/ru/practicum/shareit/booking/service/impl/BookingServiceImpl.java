@@ -133,19 +133,8 @@ public class BookingServiceImpl implements BookingService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь #" + itemId + " не найдена."));
 
-        LocalDateTime bookingStartDate = booking.getStart();
-        LocalDateTime bookingEndDate = booking.getEnd();
-
         if (!item.getAvailable()) {
             throw new ValidationException(String.format("Вещь #" + itemId + " недоступна для бронирования."));
-        }
-
-        if (bookingStartDate.isAfter(bookingEndDate)) {
-            throw new ValidationException("Дата начала бронирования должна быть раньше даты окончания бронирования.");
-        }
-
-        if (bookingStartDate.equals(bookingEndDate)) {
-            throw new ValidationException("Даты начала и окончания бронирования не могут быть одинаковыми");
         }
 
         booking.setBooker(booker);

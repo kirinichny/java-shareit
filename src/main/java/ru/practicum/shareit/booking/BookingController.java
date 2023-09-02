@@ -31,7 +31,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    public List<BookingDetailsInfoDto> getBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") Long bookerId,
+    public List<BookingDetailsInfoDto> getBookingsByBookerId(@RequestHeader(HeaderConstants.X_SHARER_USER_ID) Long bookerId,
                                                              @RequestParam(defaultValue = "ALL") String state) {
         log.debug("+ getBookingsByBookerId: bookerId={}, state={}, ", bookerId, state);
 
@@ -45,7 +45,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDetailsInfoDto> getBookingsByItemOwnerId(@RequestHeader("X-Sharer-User-Id") Long itemOwnerId,
+    public List<BookingDetailsInfoDto> getBookingsByItemOwnerId(@RequestHeader(HeaderConstants.X_SHARER_USER_ID) Long itemOwnerId,
                                                                 @RequestParam(defaultValue = "ALL") String state) {
         log.debug("+ getBookingsByItemOwnerId: itemOwnerId={}, state={}, ", itemOwnerId, state);
 

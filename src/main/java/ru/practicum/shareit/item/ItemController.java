@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.validation.ValidationGroup;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -64,7 +66,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDetailsInfoDto createItem(@RequestBody @Valid ItemCreationDto item,
+    public ItemDetailsInfoDto createItem(@RequestBody @Validated(ValidationGroup.OnCreate.class) ItemCreationDto item,
                                          @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ createItem: item={}, userId={}", item, userId);
 
@@ -78,7 +80,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDetailsInfoDto updateItem(@PathVariable Long itemId,
-                                         @RequestBody ItemCreationDto item,
+                                         @RequestBody @Validated(ValidationGroup.OnUpdate.class) ItemCreationDto item,
                                          @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ updateItem: itemId={}, item={}, userId={}", itemId, item, userId);
 
@@ -93,8 +95,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDetailsInfoDto createComment(@PathVariable Long itemId,
-                                            @RequestBody @Valid CommentCreationDto comment,
-                                            @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
+                                               @RequestBody @Valid CommentCreationDto comment,
+                                               @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ createComment: comment={}, itemId={}, userId={}", comment, itemId, userId);
 
         Comment createdComment = itemService.createComment(itemId, CommentMapper.toComment(comment), userId);

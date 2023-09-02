@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,8 +15,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.validation.ValidationGroup;
 
-import javax.validation.Valid;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto user) {
+    public UserDto createUser(@RequestBody @Validated(ValidationGroup.OnCreate.class) UserDto user) {
         log.debug("+ createUser: {}", user);
         User createdUser = userService.createUser(UserMapper.toUser(user));
         log.debug("- createUser: {}", createdUser);
@@ -52,7 +53,8 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto user) {
+    public UserDto updateUser(@PathVariable Long userId,
+                              @RequestBody @Validated(ValidationGroup.OnUpdate.class) UserDto user) {
         log.debug("+ updateUser: {}", user);
         user.setId(userId);
         User updatedUser = userService.updateUser(UserMapper.toUser(user));

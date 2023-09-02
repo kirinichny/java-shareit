@@ -10,12 +10,15 @@ import ru.practicum.shareit.item.model.Item;
 @UtilityClass
 public class BookingMapper {
     public BookingDetailsInfoDto toBookingDetailsDto(Booking booking) {
+        var itemDto = new BookingDetailsInfoDto.ItemDto(booking.getItem().getId(), booking.getItem().getName());
+        var bookerDto = new BookingDetailsInfoDto.BookerDto(booking.getBooker().getId(), booking.getBooker().getName());
+
         return BookingDetailsInfoDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(booking.getItem())
-                .booker(booking.getBooker())
+                .item(itemDto)
+                .booker(bookerDto)
                 .status(booking.getStatus())
                 .build();
     }

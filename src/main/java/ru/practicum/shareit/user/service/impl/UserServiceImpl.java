@@ -7,19 +7,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Override
     public User getUserById(Long userId) {
@@ -49,11 +43,6 @@ public class UserServiceImpl implements UserService {
 
         if (Objects.isNull(user.getEmail())) {
             user.setEmail(currentUser.getEmail());
-        }
-
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
         }
 
         userRepository.save(user);
