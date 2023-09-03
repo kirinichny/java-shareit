@@ -2,37 +2,33 @@ package ru.practicum.shareit.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
-    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private final UserRepository userRepository;
 
     @Override
     public User getUserById(Long userId) {
-        return userStorage.getUserById(userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь #" + userId + " не найден."));
     }
 
     @Override
     public List<User> getUsers() {
-        return userStorage.getUsers();
+        return userRepository.findAll();
     }
 
     @Override
     public User createUser(User user) {
-        userStorage.createUser(user);
+        userRepository.save(user);
         return user;
     }
 
@@ -49,18 +45,13 @@ public class UserServiceImpl implements UserService {
             user.setEmail(currentUser.getEmail());
         }
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        userStorage.updateUser(user);
+        userRepository.save(user);
 
         return user;
     }
 
     @Override
     public void deleteUser(Long userId) {
-        userStorage.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 }
