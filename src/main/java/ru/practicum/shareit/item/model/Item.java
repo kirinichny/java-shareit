@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.booking.dto.BookingDatesDto;
 import ru.practicum.shareit.item.dto.CommentDetailsInfoDto;
 import ru.practicum.shareit.itemRequest.model.ItemRequest;
@@ -40,7 +39,6 @@ public class Item {
     private Boolean available;
 
     @ManyToOne
-    @ToString.Exclude
     private User owner;
 
     @OneToOne

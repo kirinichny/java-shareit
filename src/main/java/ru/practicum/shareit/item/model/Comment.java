@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
@@ -35,12 +34,10 @@ public class Comment {
     private String text;
 
     @ManyToOne
-    @ToString.Exclude
     @NotNull(message = "Вещь, к которой относится комментарий не должна быть null")
     private Item item;
 
     @ManyToOne
-    @ToString.Exclude
     @NotNull(message = "Автор комментария не должн быть null")
     private User author;
 

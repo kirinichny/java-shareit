@@ -77,6 +77,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item updateItem(Item item, Long ownerId) {
         Long itemId = item.getId();
+        String itemName = item.getName();
+        String itemDescription = item.getDescription();
         Item currentItem = getItemById(itemId, ownerId);
 
         User owner = userRepository.findById(ownerId)
@@ -89,11 +91,11 @@ public class ItemServiceImpl implements ItemService {
 
         item.setOwner(owner);
 
-        if (Objects.isNull(item.getName())) {
+        if (Objects.isNull(itemName) || itemName.isBlank()) {
             item.setName(currentItem.getName());
         }
 
-        if (Objects.isNull(item.getDescription())) {
+        if (Objects.isNull(itemDescription) || itemDescription.isBlank()) {
             item.setDescription(currentItem.getDescription());
         }
 
@@ -138,10 +140,7 @@ public class ItemServiceImpl implements ItemService {
             List<Booking> bookings = bookingsByItem.getOrDefault(item, Collections.emptyList());
 
             Optional<Booking> lastBooking = bookings.stream()
-                    .filter(b -> (
-                            (b.getEnd().isEqual(currentDateTime) || b.getEnd().isBefore(currentDateTime))
-                                    || (b.getStart().isEqual(currentDateTime) || b.getStart().isBefore(currentDateTime))
-                    ))
+                    .filter(b -> (!b.getStart().isAfter(currentDateTime)))
                     .findFirst();
 
             Optional<Booking> nextBooking = bookings.stream()

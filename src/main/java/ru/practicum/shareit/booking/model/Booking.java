@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -39,11 +38,9 @@ public class Booking {
     private LocalDateTime end;
 
     @ManyToOne
-    @ToString.Exclude
     private Item item;
 
     @ManyToOne
-    @ToString.Exclude
     private User booker;
 
     @Enumerated(EnumType.STRING)

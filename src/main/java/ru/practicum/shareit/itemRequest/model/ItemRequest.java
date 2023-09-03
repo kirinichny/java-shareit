@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
@@ -38,7 +37,6 @@ public class ItemRequest {
     private String description;
 
     @ManyToOne
-    @ToString.Exclude
     @NotNull(message = "Пользователь, создавший запрос не должен быть null")
     private User requestor;
 
