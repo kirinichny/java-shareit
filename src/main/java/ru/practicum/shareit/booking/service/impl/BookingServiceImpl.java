@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -25,7 +26,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
 
     @Override
-    public List<Booking> getBookingsByBookerId(long bookerId, String statusFilter) {
+    public List<Booking> getBookingsByBookerId(long bookerId, String statusFilter, Pageable pageable) {
         List<Booking> bookings;
         LocalDateTime currentDateTime = LocalDateTime.now();
 
@@ -38,24 +39,24 @@ public class BookingServiceImpl implements BookingService {
 
             switch (bookingStatusFilter) {
                 case ALL:
-                    bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
+                    bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
                     break;
                 case CURRENT:
                     bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
                             currentDateTime,
-                            currentDateTime);
+                            currentDateTime, pageable);
                     break;
                 case PAST:
-                    bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, currentDateTime);
+                    bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, currentDateTime, pageable);
                     break;
                 case FUTURE:
-                    bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, currentDateTime);
+                    bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, currentDateTime, pageable);
                     break;
                 case WAITING:
-                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
+                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING, pageable);
                     break;
                 case REJECTED:
-                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
+                    bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED, pageable);
                     break;
                 default:
                     throw new ValidationException("Неверный статус бронирования: " + bookingStatusFilter);
@@ -68,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getBookingsByItemOwnerId(long itemOwnerId, String statusFilter) {
+    public List<Booking> getBookingsByItemOwnerId(long itemOwnerId, String statusFilter, Pageable pageable) {
         List<Booking> bookings;
         LocalDateTime currentDateTime = LocalDateTime.now();
 
@@ -80,24 +81,28 @@ public class BookingServiceImpl implements BookingService {
             BookingStatusFilter bookingStatusFilter = BookingStatusFilter.valueOf(statusFilter);
             switch (bookingStatusFilter) {
                 case ALL:
-                    bookings = bookingRepository.findAllByItem_OwnerIdOrderByStartDesc(itemOwnerId);
+                    bookings = bookingRepository.findAllByItem_OwnerIdOrderByStartDesc(itemOwnerId, pageable);
                     break;
                 case CURRENT:
-                    bookings = bookingRepository.findAllByItem_OwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(itemOwnerId,
-                            currentDateTime,
-                            currentDateTime);
+                    bookings = bookingRepository
+                            .findAllByItem_OwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(itemOwnerId,
+                                    currentDateTime, currentDateTime, pageable);
                     break;
                 case PAST:
-                    bookings = bookingRepository.findAllByItem_OwnerIdAndEndBeforeOrderByStartDesc(itemOwnerId, currentDateTime);
+                    bookings = bookingRepository.findAllByItem_OwnerIdAndEndBeforeOrderByStartDesc(itemOwnerId,
+                            currentDateTime, pageable);
                     break;
                 case FUTURE:
-                    bookings = bookingRepository.findAllByItem_OwnerIdAndStartAfterOrderByStartDesc(itemOwnerId, currentDateTime);
+                    bookings = bookingRepository.findAllByItem_OwnerIdAndStartAfterOrderByStartDesc(itemOwnerId,
+                            currentDateTime, pageable);
                     break;
                 case WAITING:
-                    bookings = bookingRepository.findAllByItem_OwnerIdAndStatusOrderByStartDesc(itemOwnerId, BookingStatus.WAITING);
+                    bookings = bookingRepository.findAllByItem_OwnerIdAndStatusOrderByStartDesc(itemOwnerId,
+                            BookingStatus.WAITING, pageable);
                     break;
                 case REJECTED:
-                    bookings = bookingRepository.findAllByItem_OwnerIdAndStatusOrderByStartDesc(itemOwnerId, BookingStatus.REJECTED);
+                    bookings = bookingRepository.findAllByItem_OwnerIdAndStatusOrderByStartDesc(itemOwnerId,
+                            BookingStatus.REJECTED, pageable);
                     break;
                 default:
                     throw new ValidationException("Неверный статус бронирования: " + bookingStatusFilter);
