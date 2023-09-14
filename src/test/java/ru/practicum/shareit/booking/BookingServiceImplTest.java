@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    @DisplayName("Получение бронирований пользователя по ID и фильтру")
+    @DisplayName("Получение бронирований пользователя по id и фильтру")
     public void shouldReturnBookingsByBookerId() {
         User booker = generator.nextObject(User.class);
         List<Booking> bookings = generator.objects(Booking.class, 3)
@@ -64,6 +65,134 @@ class BookingServiceImplTest {
 
         Assertions.assertEquals(bookings.size(), resultBookings.size());
         Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех текущих бронирований пользователя по id")
+    public void shouldReturnCurrentBookingsByBookerId() {
+        User booker = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.setBooker(booker))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByBookerId(booker.getId(), "CURRENT", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех прошедших бронирований пользователя по id")
+    public void shouldReturnPastBookingsByBookerId() {
+        User booker = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.setBooker(booker))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByBookerId(booker.getId(), "PAST", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+
+    @Test
+    @DisplayName("Получение всех будущих бронирований пользователя по id")
+    public void shouldReturnFutureBookingsByBookerId() {
+        User booker = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.setBooker(booker))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByBookerIdAndStartAfterOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByBookerId(booker.getId(), "FUTURE", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех ожидающих бронирований пользователя по id")
+    public void shouldReturnWaitingBookingsByBookerId() {
+        User booker = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.setBooker(booker))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByBookerIdAndStatusOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(BookingStatus.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByBookerId(booker.getId(), "WAITING", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех отклоненных бронирований пользователя по id")
+    public void shouldReturnRejectedBookingsByBookerId() {
+        User booker = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.setBooker(booker))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByBookerIdAndStatusOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(BookingStatus.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByBookerId(booker.getId(), "REJECTED", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Бросить исключение при получении бронирований с неверным статусом фильтра")
+    public void shouldThrowExceptionWhenGetBookingsByInvalidStatusFilter() {
+        User booker = generator.nextObject(User.class);
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> bookingService.getBookingsByBookerId(
+                booker.getId(), "UNSUPPORTED_STATUS", Pageable.ofSize(10)));
     }
 
     @Test
@@ -95,7 +224,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    @DisplayName("Бросить исключение при запрашивании бронирований для вещи несуществующего владельца")
+    @DisplayName("Бросить исключение при запрашивании бронирований для несуществующего владельца вещи")
     public void shouldThrowExceptionWhenGetBookingsByNonExistentItemOwnerId() {
         Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(false);
 
@@ -105,7 +234,123 @@ class BookingServiceImplTest {
     }
 
     @Test
-    @DisplayName("Получение бронирования по ID")
+    @DisplayName("Получение всех текущих бронирований для владельца вещи по id")
+    public void shouldReturnCurrentBookingsByItemOwnerId() {
+        User owner = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.getItem().setOwner(owner))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByItem_OwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByItemOwnerId(owner.getId(), "CURRENT", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех прошедших бронирований для владельца вещи по id")
+    public void shouldReturnPastBookingsByItemOwnerId() {
+        User owner = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.getItem().setOwner(owner))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByItem_OwnerIdAndEndBeforeOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByItemOwnerId(owner.getId(), "PAST", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех будущих бронирований для владельца вещи по id")
+    public void shouldReturnFutureBookingsByItemOwnerId() {
+        User owner = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.getItem().setOwner(owner))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByItem_OwnerIdAndStartAfterOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(LocalDateTime.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByItemOwnerId(owner.getId(), "FUTURE", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех ожидающих бронирований для владельца вещи по id")
+    public void shouldReturnWaitingBookingsByItemOwnerId() {
+        User owner = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.getItem().setOwner(owner))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByItem_OwnerIdAndStatusOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(BookingStatus.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByItemOwnerId(owner.getId(), "WAITING", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение всех отклоненных бронирований для владельца вещи по id")
+    public void shouldReturnRejectedBookingsByItemOwnerId() {
+        User owner = generator.nextObject(User.class);
+        List<Booking> bookings = generator.objects(Booking.class, 3)
+                .peek(booking -> booking.getItem().setOwner(owner))
+                .collect(Collectors.toList());
+
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(bookingRepository
+                        .findAllByItem_OwnerIdAndStatusOrderByStartDesc(
+                                Mockito.anyLong(),
+                                Mockito.any(BookingStatus.class),
+                                Mockito.any(Pageable.class)))
+                .thenReturn(bookings);
+
+        List<Booking> resultBookings = bookingService
+                .getBookingsByItemOwnerId(owner.getId(), "REJECTED", Pageable.ofSize(10));
+
+        Assertions.assertEquals(bookings.size(), resultBookings.size());
+        Assertions.assertEquals(bookings, resultBookings);
+    }
+
+    @Test
+    @DisplayName("Получение бронирования по id")
     public void shouldReturnBookingById() {
         Booking booking = generator.nextObject(Booking.class);
 
