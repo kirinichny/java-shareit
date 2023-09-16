@@ -31,8 +31,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -51,9 +49,9 @@ public class ItemController {
 
         Pageable pageable = PageRequest.of(offset / limit, limit);
 
-        List<ItemDetailsInfoDto> items = itemService.getItemsByOwnerId(ownerId, pageable).stream()
-                .map(ItemMapper::toItemDetailsInfoDto)
-                .collect(toList());
+        List<ItemDetailsInfoDto> items = ItemMapper
+                .toItemDetailsInfoDto(itemService.getItemsByOwnerId(ownerId, pageable));
+
         log.debug("- getItemsByOwnerId: {}", items);
         return items;
     }
@@ -77,9 +75,9 @@ public class ItemController {
 
         Pageable pageable = PageRequest.of(offset / limit, limit);
 
-        List<ItemDetailsInfoDto> items = itemService.searchItems(text, pageable).stream()
-                .map(ItemMapper::toItemDetailsInfoDto)
-                .collect(toList());
+        List<ItemDetailsInfoDto> items = ItemMapper
+                .toItemDetailsInfoDto(itemService.searchItems(text, pageable));
+
         log.debug("- searchItems: {}", items);
         return items;
     }

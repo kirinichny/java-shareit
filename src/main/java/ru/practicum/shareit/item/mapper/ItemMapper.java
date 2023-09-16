@@ -7,7 +7,10 @@ import ru.practicum.shareit.item.dto.ItemShortInfoDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.itemRequest.model.ItemRequest;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
 
 @UtilityClass
 public class ItemMapper {
@@ -22,6 +25,12 @@ public class ItemMapper {
                 .nextBooking(item.getNextBooking())
                 .comments(item.getComments())
                 .build();
+    }
+
+    public List<ItemDetailsInfoDto> toItemDetailsInfoDto(List<Item> items) {
+        return items.stream()
+                .map(ItemMapper::toItemDetailsInfoDto)
+                .collect(toList());
     }
 
     public ItemShortInfoDto toItemShortInfoDto(Item item) {

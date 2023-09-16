@@ -25,8 +25,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -40,9 +38,8 @@ public class ItemRequestController {
             @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long requestorId
     ) {
         log.debug("+ getItemRequestsByRequestorId: requestorId={}", requestorId);
-        List<ItemRequestDetailsInfoDto> itemRequest = itemRequestService.getItemRequestsByRequestorId(requestorId).stream()
-                .map(ItemRequestMapper::toItemRequestDetailsInfoDto)
-                .collect(toList());
+        List<ItemRequestDetailsInfoDto> itemRequest = ItemRequestMapper
+                .toItemRequestDetailsInfoDto(itemRequestService.getItemRequestsByRequestorId(requestorId));
         log.debug("- getItemRequestsByRequestorId: {}", itemRequest);
         return itemRequest;
     }
@@ -57,9 +54,8 @@ public class ItemRequestController {
 
         Pageable pageable = PageRequest.of(offset / limit, limit);
 
-        List<ItemRequestDetailsInfoDto> itemRequests = itemRequestService.getItemRequests(userId, pageable).stream()
-                .map(ItemRequestMapper::toItemRequestDetailsInfoDto)
-                .collect(toList());
+        List<ItemRequestDetailsInfoDto> itemRequests = ItemRequestMapper
+                .toItemRequestDetailsInfoDto(itemRequestService.getItemRequests(userId, pageable));
 
         log.debug("- getItemRequestsByRequestorId: {}", itemRequests);
         return itemRequests;

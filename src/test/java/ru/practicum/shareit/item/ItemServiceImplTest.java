@@ -180,7 +180,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    @DisplayName("Бросить исключение при добалении вещи с неверным ID владельца вещи")
+    @DisplayName("Бросить исключение при добавлении вещи с неверным ID владельца вещи")
     public void shouldThrowExceptionWhenCreatingItemWithInvalidOwnerId() {
         Long invalidOwnerId = 1L;
         Item item = generator.nextObject(Item.class);

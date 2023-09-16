@@ -26,8 +26,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
@@ -47,9 +45,8 @@ public class BookingController {
 
         Pageable pageable = PageRequest.of(offset / limit, limit);
 
-        List<BookingDetailsInfoDto> bookings = bookingService.getBookingsByBookerId(bookerId, state, pageable).stream()
-                .map(BookingMapper::toBookingDetailsDto)
-                .collect(toList());
+        List<BookingDetailsInfoDto> bookings = BookingMapper
+                .toBookingDetailsDto(bookingService.getBookingsByBookerId(bookerId, state, pageable));
 
         log.debug("- getBookingsByBookerId: {}", bookings);
 
@@ -67,9 +64,8 @@ public class BookingController {
 
         Pageable pageable = PageRequest.of(offset / limit, limit);
 
-        List<BookingDetailsInfoDto> bookings = bookingService.getBookingsByItemOwnerId(itemOwnerId, state, pageable).stream()
-                .map(BookingMapper::toBookingDetailsDto)
-                .collect(toList());
+        List<BookingDetailsInfoDto> bookings = BookingMapper
+                .toBookingDetailsDto(bookingService.getBookingsByItemOwnerId(itemOwnerId, state, pageable));
 
         log.debug("- getBookingsByItemOwnerId: {}", bookings);
 
@@ -80,7 +76,8 @@ public class BookingController {
     public BookingDetailsInfoDto getBookingById(@PathVariable Long bookingId,
                                                 @RequestHeader(HeaderConstants.X_SHARER_USER_ID) long userId) {
         log.debug("+ getBookingById: bookingId={}", bookingId);
-        BookingDetailsInfoDto booking = BookingMapper.toBookingDetailsDto(bookingService.getBookingById(bookingId, userId));
+        BookingDetailsInfoDto booking = BookingMapper
+                .toBookingDetailsDto(bookingService.getBookingById(bookingId, userId));
         log.debug("- getBookingById: {}", booking);
         return booking;
     }
