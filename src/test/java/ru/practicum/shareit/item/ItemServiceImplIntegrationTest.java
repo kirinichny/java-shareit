@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest
+@Transactional
 @DisplayName("Интеграционные тесты для ItemServiceImpl")
 public class ItemServiceImplIntegrationTest {
     @Autowired
@@ -46,7 +47,6 @@ public class ItemServiceImplIntegrationTest {
 
     @Test
     @DirtiesContext
-    @Transactional
     @DisplayName("Возвращать вещь по id")
     public void shouldReturnItemById() {
         User owner = createUser();
