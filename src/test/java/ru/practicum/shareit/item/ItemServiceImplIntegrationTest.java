@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -45,6 +46,7 @@ public class ItemServiceImplIntegrationTest {
 
     @Test
     @DirtiesContext
+    @Transactional
     @DisplayName("Возвращать вещь по id")
     public void shouldReturnItemById() {
         User owner = createUser();
