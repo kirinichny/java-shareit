@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "items", schema = "public")
@@ -38,7 +40,7 @@ public class Item {
     @Column(name = "is_available")
     private Boolean available;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 
     @OneToOne
@@ -52,4 +54,18 @@ public class Item {
 
     @Transient
     private List<CommentDetailsInfoDto> comments;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        if (id == null || item.id == null) return false;
+        return Objects.equals(id, item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, 42);
+    }
 }
