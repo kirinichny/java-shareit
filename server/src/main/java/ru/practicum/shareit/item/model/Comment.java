@@ -15,8 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,16 +28,12 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Текст комментария не должен быть пустым или содержать только пробельные символы")
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = "Вещь, к которой относится комментарий не должна быть null")
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = "Автор комментария не должен быть null")
     private User author;
 
     @Column(name = "created_at")
